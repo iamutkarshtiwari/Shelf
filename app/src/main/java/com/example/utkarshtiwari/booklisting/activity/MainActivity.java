@@ -1,36 +1,38 @@
 package com.example.utkarshtiwari.booklisting.activity;
 
-import android.content.res.Configuration;
+import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.example.utkarshtiwari.booklisting.R;
 import com.example.utkarshtiwari.booklisting.adapters.RecyclerViewAdapter;
 import com.example.utkarshtiwari.booklisting.models.Book;
-import com.example.utkarshtiwari.booklisting.utils.JSONParser;
+import com.example.utkarshtiwari.booklisting.utils.BookLoader;
 
 import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>>{
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Book>> {
 
-    public static final String GOOGLE_BOOKS_API_BASE_QUERY =
+    private static final String GOOGLE_BOOKS_API_BASE_QUERY =
             "https://www.googleapis.com/books/v1/volumes?q=";
+
+    private static final int BOOK_REQUEST_LOADER = 1;
+
 
     private FloatingSearchView searchBarView;
     private String mLastQuery = "";
     private RecyclerView recyclerView;
-    private RecyclerViewAdapter adapter;
+    private RecyclerViewAdapter bookAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,31 +49,37 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 });
 
 
-
-        allItemList = jsonParser.getResponseData();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        ArrayList<Book> searchResult;
-        searchResult = new ArrayList<Book>();
-        RecyclerViewAdapter bookAdapter = new RecyclerViewAdapter(this, searchResult);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        ArrayList<Book> searchResult = new ArrayList<Book>();
+        bookAdapter = new RecyclerViewAdapter(this, searchResult);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(bookAdapter);
         setupSearchBar();
     }
 
     @Override
-    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
-        return new BookLoader(MainActivity.this, );
+    public Loader<ArrayList<Book>> onCreateLoader(int id, Bundle args) {
+        return new BookLoader(MainActivity.this, args.getString("request_url"));
     }
+
     @Override
-    public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
-        bookAdapter.updateAdapterData(data);
+    public void onLoadFinished(Loader<ArrayList<Book>> loader, ArrayList<Book> data) {
+        setSearchLabelVisibility(data.size() == 0);
+        if (data.size() == 0) {
+            Toast.makeText(this, this.getResources().getString(R.string.no_books_found), Toast.LENGTH_LONG).show();
+        } else {
+            bookAdapter.updateAdapterData(data);
+        }
     }
+
     @Override
-    public void onLoaderReset(Loader<List<Book>> loader) {
+    public void onLoaderReset(Loader<ArrayList<Book>> loader) {
         bookAdapter.updateAdapterData(new ArrayList<Book>());
+        setSearchLabelVisibility(true);
     }
 
     /**
@@ -89,15 +97,15 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onSearchAction(String query) {
                 mLastQuery = query;
-
+                Log.d("LISTENER", query);
                 String requestQuery = GOOGLE_BOOKS_API_BASE_QUERY + query;
-                
-                
+                Bundle args = new Bundle();
+                args.putString("request_url", requestQuery);
+//                getSupportLoaderManager().
+                getSupportLoaderManager().restartLoader(BOOK_REQUEST_LOADER, args, MainActivity.this).forceLoad();
             }
         });
     }
-
-
 
 
     /**

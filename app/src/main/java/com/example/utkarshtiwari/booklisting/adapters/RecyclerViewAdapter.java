@@ -10,13 +10,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.utkarshtiwari.booklisting.R;
 import com.example.utkarshtiwari.booklisting.models.Book;
 import com.squareup.picasso.Picasso;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-
-import com.example.utkarshtiwari.booklisting.R;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
 
@@ -39,15 +37,28 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
 
         // Downloads the product image from url
         Picasso.with(activity)
-                .load(items.get(position).getPhotoURL())
+                .load(items.get(position).getVolumeInfo().getImageLinks().getSmallThumbnail())
                 .fit()
                 .error(activity.getResources().getDrawable(R.drawable.image_not_found))
                 .into(holder.bookImage);
-;
-        holder.bookName.setText(activity.getResources().getString(R.string.product_price, "$", price));
-        holder.bookAuthor.setText(items.get(position).getName());
-//        String description
-        holder.bookDescription.setText(String.format("%s", items.get(position).getLikesCount()));
+        ;
+        holder.bookName.setText(items.get(position).getVolumeInfo().getTitle());
+        String authList = "";
+        if (items.get(position).getVolumeInfo().getAuthors() != null) {
+            for (String auth : items.get(position).getVolumeInfo().getAuthors()) {
+                authList += auth + ", ";
+            }
+            holder.bookAuthor.setText(authList.substring(0, authList.length() - 2));
+        } else {
+            holder.bookAuthor.setText(activity.getResources().getString(R.string.not_mentioned));
+        }
+
+        if (items.get(position).getVolumeInfo().getDescription() != null) {
+            String desc = items.get(position).getVolumeInfo().getDescription();
+            holder.bookDescription.setText(String.format("%s.", desc.split("\\.")[0]));
+        } else {
+            holder.bookDescription.setText(activity.getResources().getString(R.string.no_desc));
+        }
     }
 
     @Override
@@ -62,10 +73,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
 
     /**
      * Updates the adapter item list with new list
+     *
      * @param newData list
      */
     public void updateAdapterData(ArrayList<Book> newData) {
         this.items = newData;
-         notifyDataSetChanged();
+        notifyDataSetChanged();
     }
 }

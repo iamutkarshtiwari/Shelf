@@ -10,7 +10,6 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 
 public class JSONParser {
@@ -40,7 +39,7 @@ public class JSONParser {
             JSONObject jsonObject = new JSONObject(responseJSON);
 
             JSONArray itemsArray = jsonObject.getJSONArray("items");
-            int itemsArrayLength = jsonObject.getJSONObject("totalItems");
+            int itemsArrayLength = jsonObject.getInt("totalItems");
 
             if (itemsArray == null || itemsArrayLength == 0 || itemsArray.length() == 0) {
                 return itemList;
@@ -51,7 +50,7 @@ public class JSONParser {
             // Generate product arraylist from json data
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject bookObject = jsonArray.getJSONObject(i);
-                Book book= gson.fromJson(bookObject.toString(), Book.class);
+                Book book = gson.fromJson(bookObject.toString(), Book.class);
                 itemList.add(book);
             }
         } catch (Exception e) {
@@ -60,6 +59,4 @@ public class JSONParser {
         }
         return itemList;
     }
-
-
 }
