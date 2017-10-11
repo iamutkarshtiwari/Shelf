@@ -54,8 +54,6 @@ public class HttpGetRequest {
                 streamReader.close();
                 //Set our result equal to our stringBuilder
                 result = stringBuilder.toString();
-
-
             } else {
                 return "";
             }

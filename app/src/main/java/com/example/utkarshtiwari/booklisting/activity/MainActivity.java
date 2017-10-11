@@ -24,9 +24,13 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>>{
 
+    public static final String GOOGLE_BOOKS_API_BASE_QUERY =
+            "https://www.googleapis.com/books/v1/volumes?q=";
+
     private FloatingSearchView searchBarView;
     private String mLastQuery = "";
     private RecyclerView recyclerView;
+    private RecyclerViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,31 +48,30 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
 
 
-        JSONParser jsonParser = new JSONParser("all.json");
         allItemList = jsonParser.getResponseData();
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         ArrayList<Book> searchResult;
         searchResult = new ArrayList<Book>();
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, searchResult);
+        RecyclerViewAdapter bookAdapter = new RecyclerViewAdapter(this, searchResult);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(bookAdapter);
         setupSearchBar();
     }
 
     @Override
     public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
-        return new EmployeeLoader(MainActivity.this);
+        return new BookLoader(MainActivity.this, );
     }
     @Override
     public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
-        empAdapter.setEmployees(data);
+        bookAdapter.updateAdapterData(data);
     }
     @Override
     public void onLoaderReset(Loader<List<Book>> loader) {
-        empAdapter.setEmployees(new ArrayList<Book>());
+        bookAdapter.updateAdapterData(new ArrayList<Book>());
     }
 
     /**
@@ -86,9 +89,10 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             @Override
             public void onSearchAction(String query) {
                 mLastQuery = query;
-                ArrayList<Book> searchResult = filteredProducts(query);
-                setSearchLabelVisibility(searchResult.size() == 0);
-                updateResults(searchResult);
+
+                String requestQuery = GOOGLE_BOOKS_API_BASE_QUERY + query;
+                
+                
             }
         });
     }

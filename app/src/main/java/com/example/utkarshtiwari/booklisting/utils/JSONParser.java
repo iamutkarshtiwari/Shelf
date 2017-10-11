@@ -39,7 +39,10 @@ public class JSONParser {
         try {
             JSONObject jsonObject = new JSONObject(responseJSON);
 
-            if (jsonObject.getJSONArray("items").length() == 0) {
+            JSONArray itemsArray = jsonObject.getJSONArray("items");
+            int itemsArrayLength = jsonObject.getJSONObject("totalItems");
+
+            if (itemsArray == null || itemsArrayLength == 0 || itemsArray.length() == 0) {
                 return itemList;
             }
 

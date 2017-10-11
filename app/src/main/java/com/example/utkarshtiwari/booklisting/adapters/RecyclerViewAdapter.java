@@ -66,5 +66,6 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
      */
     public void updateAdapterData(ArrayList<Book> newData) {
         this.items = newData;
+         notifyDataSetChanged();
     }
 }
