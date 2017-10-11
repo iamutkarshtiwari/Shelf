@@ -18,7 +18,6 @@ public class Book {
         List<String> authors;
         String description;
         ImageLinks imageLinks;
-
     }
 
     private class ImageLinks {

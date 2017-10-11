@@ -1,8 +1,11 @@
 package com.example.utkarshtiwari.booklisting.activity;
 
 import android.content.res.Configuration;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,12 +15,14 @@ import android.widget.RelativeLayout;
 import com.arlib.floatingsearchview.FloatingSearchView;
 import com.arlib.floatingsearchview.suggestions.model.SearchSuggestion;
 import com.example.utkarshtiwari.booklisting.R;
+import com.example.utkarshtiwari.booklisting.adapters.RecyclerViewAdapter;
 import com.example.utkarshtiwari.booklisting.models.Book;
 import com.example.utkarshtiwari.booklisting.utils.JSONParser;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Book>>{
 
     private FloatingSearchView searchBarView;
     private String mLastQuery = "";
@@ -44,13 +49,26 @@ public class MainActivity extends AppCompatActivity {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         ArrayList<Book> searchResult;
         searchResult = new ArrayList<Book>();
-        HomeRecyclerAdapter adapter = new HomeRecyclerAdapter(this, searchResult);
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(this, searchResult);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         setupSearchBar();
+    }
+
+    @Override
+    public Loader<List<Book>> onCreateLoader(int id, Bundle args) {
+        return new EmployeeLoader(MainActivity.this);
+    }
+    @Override
+    public void onLoadFinished(Loader<List<Book>> loader, List<Book> data) {
+        empAdapter.setEmployees(data);
+    }
+    @Override
+    public void onLoaderReset(Loader<List<Book>> loader) {
+        empAdapter.setEmployees(new ArrayList<Book>());
     }
 
     /**
@@ -68,62 +86,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSearchAction(String query) {
                 mLastQuery = query;
-                ArrayList<Product> searchResult = filteredProducts(query);
+                ArrayList<Book> searchResult = filteredProducts(query);
                 setSearchLabelVisibility(searchResult.size() == 0);
                 updateResults(searchResult);
             }
         });
     }
 
-    /**
-     * Returns list of filtered products/suggestions
-     *
-     * @param query search keyword
-     * @return
-     */
-    public ArrayList<Product> filteredProducts(String query) {
-        //new array list that will hold the filtered data
 
-        ArrayList<Product> filteredProducts = new ArrayList<Product>();
 
-        //looping through existing elements
-        for (Product item : allItemList) {
-            //if the existing elements contains the search input
-            if (item.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredProducts.add(item);
-            }
-        }
-        return filteredProducts;
-    }
-
-    /**
-     * Returns list of filtered suggestions
-     *
-     * @param query search keyword
-     * @return
-     */
-    public ArrayList<ProductSuggestion> filteredProductSuggestions(String query) {
-        //new array list that will hold the filtered data
-
-        ArrayList<ProductSuggestion> filteredProductSuggestions = new ArrayList<>();
-
-        //looping through existing elements
-        for (Product item : allItemList) {
-            //if the existing elements contains the search input
-            if (item.getName().toLowerCase().contains(query.toLowerCase())) {
-                filteredProductSuggestions.add(new ProductSuggestion(item.getName()));
-            }
-        }
-        return filteredProductSuggestions;
-    }
 
     /**
      * Updates search results in the recycler view
      *
      * @param searchResult
      */
-    public void updateResults(ArrayList<Product> searchResult) {
-        HomeRecyclerAdapter adapter = (HomeRecyclerAdapter) recyclerView.getAdapter();
+    public void updateResults(ArrayList<Book> searchResult) {
+        RecyclerViewAdapter adapter = (RecyclerViewAdapter) recyclerView.getAdapter();
         adapter.updateAdapterData(searchResult);
         adapter.notifyDataSetChanged();
 

@@ -4,11 +4,10 @@ package com.example.utkarshtiwari.booklisting.utils;
  * Created by utkarshtiwari on 10/10/17.
  */
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import com.example.utkarshtiwari.booklisting.models.Book;
+import com.google.gson.Gson;
 
-import java.io.InputStream;
-import java.util.ArrayList;mport org.json.JSONArray;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.InputStream;
@@ -23,35 +22,14 @@ public class JSONParser {
     }
 
     /**
-     * Loads JSON from the asset file
-     *
-     * @param dataSource name of the asset file
-     * @return JSON string
-     */
-    public String loadJSONFromAsset(String dataSource) {
-        String json = null;
-        try {
-            InputStream is = HomeActivity.getContext().getAssets().open(dataSource);
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            is.close();
-            json = new String(buffer, "UTF-8");
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            return null;
-        }
-        return json;
-    }
-
-    /**
      * Parses the JSON string and generates list of products
      *
      * @return ArrayList of Products
      */
-    public ArrayList<Product> getResponseData() {
-        ArrayList<Product> itemList = new ArrayList<Product>();
-        String responseJSON = loadJSONFromAsset(this.dataSource);
+    public ArrayList<Book> getResponseData() {
+        ArrayList<Book> itemList = new ArrayList<Book>();
+        String responseJSON = HttpGetRequest.getResponseString(this.dataSource);
+        Gson gson = new Gson();
 
         // Return empty list if null response
         if (responseJSON == null) {
@@ -61,31 +39,24 @@ public class JSONParser {
         try {
             JSONObject jsonObject = new JSONObject(responseJSON);
 
-            // Return empty list if response result is not "ok"
-            if (!jsonObject.getString("result").equalsIgnoreCase("ok")) {
+            if (jsonObject.getJSONArray("items").length() == 0) {
                 return itemList;
             }
 
-            JSONArray jsonArray = jsonObject.getJSONArray("data");
+            JSONArray jsonArray = jsonObject.getJSONArray("items");
 
             // Generate product arraylist from json data
             for (int i = 0; i < jsonArray.length(); i++) {
-                JSONObject productObject = jsonArray.getJSONObject(i);
-
-                String id = productObject.getString("id");
-                String productName = productObject.getString("name");
-                String isSoldOut = productObject.getString("status");
-                long likesCount = productObject.getLong("num_likes");
-                long commentsCount = productObject.getLong("num_comments");
-                long price = productObject.getLong("price");
-                String photoURL = productObject.getString("photo");
-
-                Product product = new Product(id, productName, isSoldOut, likesCount, commentsCount, price, photoURL);
-                itemList.add(product);
+                JSONObject bookObject = jsonArray.getJSONObject(i);
+                Book book= gson.fromJson(bookObject.toString(), Book.class);
+                itemList.add(book);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            return new ArrayList<Book>();
         }
         return itemList;
     }
+
+
 }
