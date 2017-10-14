@@ -3,6 +3,8 @@ package com.example.utkarshtiwari.booklisting.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,6 +12,101 @@ import java.util.List;
  */
 
 public class Book implements Parcelable {
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public ArrayList<String> getAuthors() {
+        return authors;
+    }
+
+    public void setAuthors(ArrayList<String> authors) {
+        this.authors = authors;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
+    private String name;
+    private ArrayList<String> authors;
+    private String language;
+    private String currency;
+    private double price;
+
+    public String getImageURL() {
+        return imageURL;
+    }
+
+    public void setImageURL(String imageURL) {
+        this.imageURL = imageURL;
+    }
+
+    private String imageURL;
+
+    public String getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(String currency) {
+        this.currency = currency;
+    }
+
+    public Book(String name, ArrayList<String> authors, String language, double price, String currency, String imageURL) {
+        this.name = name;
+        this.authors = authors;
+        this.language = language;
+        this.price = price;
+        this.currency = currency;
+        this.imageURL = imageURL;
+    }
+
+    protected Book(Parcel in) {
+        name = in.readString();
+        if (in.readByte() == 0x01) {
+            authors = new ArrayList<String>();
+            in.readList(authors, String.class.getClassLoader());
+        } else {
+            authors = null;
+        }
+        language = in.readString();
+        price = in.readFloat();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(name);
+        if (authors == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(authors);
+        }
+        dest.writeString(language);
+        dest.writeDouble(price);
+    }
 
     @SuppressWarnings("unused")
     public static final Parcelable.Creator<Book> CREATOR = new Parcelable.Creator<Book>() {
@@ -23,149 +120,4 @@ public class Book implements Parcelable {
             return new Book[size];
         }
     };
-    private String id;
-    private Info volumeInfo;
-    private SaleInfo saleInfo;
-
-    protected Book(Parcel in) {
-        id = in.readString();
-        volumeInfo = (Info) in.readValue(Info.class.getClassLoader());
-    }
-
-    public String getId() {
-        return this.id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public Info getVolumeInfo() {
-        return this.volumeInfo;
-    }
-
-    public void setVolumeInfo(Info volumeInfo) {
-        this.volumeInfo = volumeInfo;
-    }
-
-    public void setSaleInfo(SaleInfo info) {
-        this.saleInfo = info;
-    }
-
-    public SaleInfo getSaleInfo() {
-        return this.saleInfo;
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(id);
-        dest.writeValue(volumeInfo);
-    }
-
-    public class Info {
-        String title;
-        List<String> authors;
-        String description;
-        ImageLinks imageLinks;
-        String language;
-
-        public String getTitle() {
-            return this.title;
-        }
-
-        public void setTitle(String title) {
-            this.title = title;
-        }
-
-        public List<String> getAuthors() {
-            return this.authors;
-        }
-
-        public void setAuthors(List<String> authors) {
-            this.authors = authors;
-        }
-
-        public String getDescription() {
-            return this.description;
-        }
-
-        public void setDescription(String desc) {
-            this.description = desc;
-        }
-
-        public ImageLinks getImageLinks() {
-            return this.imageLinks;
-        }
-
-        public void setImageLinks(ImageLinks imageLinks) {
-            this.imageLinks = imageLinks;
-        }
-
-        public void setLang(String lang) {
-            this.language = lang;
-        }
-
-        public String getLang() {
-            return this.language;
-        }
-    }
-
-    public class ImageLinks {
-        String smallThumbnail;
-        String thumbnail;
-
-        public String getSmallThumbnail() {
-            return this.smallThumbnail;
-        }
-
-        public void setSmallThumbnail(String smallThumbnail) {
-            this.smallThumbnail = smallThumbnail;
-        }
-
-        public String getThumbnail() {
-            return this.thumbnail;
-        }
-
-        public void setThumbnail(String thumbnail) {
-            this.thumbnail = thumbnail;
-        }
-    }
-
-    public class SaleInfo {
-        ListPrice listPrice;
-
-        public void setListPrice(ListPrice lp) {
-            this.listPrice = lp;
-        }
-
-        public ListPrice getListPrice() {
-            return this.listPrice;
-        }
-    }
-
-    public class ListPrice {
-        float amount;
-        String currencyCode;
-
-        public String getCurrencyCode() {
-            return currencyCode;
-        }
-
-        public void setCurrencyCode(String currencyCode) {
-            this.currencyCode = currencyCode;
-        }
-
-        public float getAmount() {
-            return amount;
-        }
-
-        public void setAmount(float amount) {
-            this.amount = amount;
-        }
-    }
 }

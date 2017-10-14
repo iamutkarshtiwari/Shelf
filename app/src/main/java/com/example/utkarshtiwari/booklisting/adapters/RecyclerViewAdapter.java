@@ -37,15 +37,15 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
 
         // Downloads the product image from url
         Picasso.with(activity)
-                .load(items.get(position).getVolumeInfo().getImageLinks().getSmallThumbnail())
+                .load(items.get(position).getImageURL())
                 .fit()
                 .error(activity.getResources().getDrawable(R.drawable.image_not_found))
                 .into(holder.bookImage);
         ;
-        holder.bookName.setText(items.get(position).getVolumeInfo().getTitle());
+        holder.bookName.setText(items.get(position).getName());
         String authList = "";
-        if (items.get(position).getVolumeInfo().getAuthors() != null) {
-            for (String auth : items.get(position).getVolumeInfo().getAuthors()) {
+        if (items.get(position).getAuthors().size() > 0) {
+            for (String auth : items.get(position).getAuthors()) {
                 authList += auth + ", ";
             }
             holder.bookAuthor.setText(authList.substring(0, authList.length() - 2));
@@ -53,11 +53,12 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
             holder.bookAuthor.setText(activity.getResources().getString(R.string.not_mentioned));
         }
 
-        String lang = items.get(position).getVolumeInfo().getLang();
+        String lang = items.get(position).getLanguage();
         holder.bookLang.setText(String.format("%s", lang.substring(0, 1).toUpperCase() + lang.substring(1)));
-        Book.ListPrice listPrice = items.get(position).getSaleInfo().getListPrice();
-        if (listPrice != null) {
-            holder.bookPrice.setText(this.activity.getResources().getString(R.string.price, listPrice.getCurrencyCode(), listPrice.getAmount()));
+        String currency = items.get(position).getCurrency();
+        if (currency.length() > 0) {
+            double price = items.get(position).getPrice();
+            holder.bookPrice.setText(this.activity.getResources().getString(R.string.price, currency, price));
         }
     }
 

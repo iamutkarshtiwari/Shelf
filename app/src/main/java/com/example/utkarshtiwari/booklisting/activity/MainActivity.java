@@ -129,6 +129,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             public void onSearchAction(String query) {
                 mLastQuery = query;
                 Log.d("LISTENER", query);
+                bookAdapter.getAdapterData().clear();
                 String requestQuery = GOOGLE_BOOKS_API_BASE_QUERY + query;
                 Bundle args = new Bundle();
                 args.putString("request_url", requestQuery);
