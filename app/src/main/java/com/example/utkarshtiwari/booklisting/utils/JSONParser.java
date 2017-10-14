@@ -39,10 +39,7 @@ public class JSONParser {
         try {
             JSONObject jsonObject = new JSONObject(responseJSON);
 
-            JSONArray itemsArray = jsonObject.getJSONArray("items");
-            int itemsArrayLength = jsonObject.getInt("totalItems");
-
-            if (itemsArray == null || itemsArrayLength == 0 || itemsArray.length() == 0) {
+            if (!jsonObject.has("items")) {
                 return new ArrayList<Book>();
             }
 
@@ -51,7 +48,6 @@ public class JSONParser {
             // Generate product arraylist from json data
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject bookObject = jsonArray.getJSONObject(i);
-
 
                 String name = bookObject.getJSONObject("volumeInfo").getString("title");
                 String photoURL = "";
