@@ -15,7 +15,7 @@ import com.example.utkarshtiwari.booklisting.R;
 public class BookViewHolder extends RecyclerView.ViewHolder {
 
     public ImageView bookImage;
-    public TextView bookName, bookAuthor, bookDescription;
+    public TextView bookName, bookAuthor, bookPrice, bookLang;
 
     public BookViewHolder(View itemView) {
         super(itemView);
@@ -23,6 +23,7 @@ public class BookViewHolder extends RecyclerView.ViewHolder {
         bookImage = (ImageView) itemView.findViewById(R.id.imageView);
         bookName = (TextView) itemView.findViewById(R.id.name);
         bookAuthor = (TextView) itemView.findViewById(R.id.author);
-        bookDescription = (TextView) itemView.findViewById(R.id.desc);
+        bookPrice = (TextView) itemView.findViewById(R.id.price);
+        bookLang = (TextView) itemView.findViewById(R.id.language);
     }
 }

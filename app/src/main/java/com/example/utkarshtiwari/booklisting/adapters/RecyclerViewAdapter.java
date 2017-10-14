@@ -53,11 +53,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
             holder.bookAuthor.setText(activity.getResources().getString(R.string.not_mentioned));
         }
 
-        if (items.get(position).getVolumeInfo().getDescription() != null) {
-            String desc = items.get(position).getVolumeInfo().getDescription();
-            holder.bookDescription.setText(String.format("%s.", desc.split("\\.")[0]));
-        } else {
-            holder.bookDescription.setText(activity.getResources().getString(R.string.no_desc));
+        String lang = items.get(position).getVolumeInfo().getLang();
+        holder.bookLang.setText(String.format("%s", lang.substring(0, 1).toUpperCase() + lang.substring(1)));
+        Book.ListPrice listPrice = items.get(position).getSaleInfo().getListPrice();
+        if (listPrice != null) {
+            holder.bookPrice.setText(this.activity.getResources().getString(R.string.price, listPrice.getCurrencyCode(), listPrice.getAmount()));
         }
     }
 
@@ -79,5 +79,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
     public void updateAdapterData(ArrayList<Book> newData) {
         this.items = newData;
         notifyDataSetChanged();
+    }
+
+    /**
+     * Returns adapter list data
+     * @return
+     */
+    public ArrayList<Book> getAdapterData() {
+        return this.items;
     }
 }

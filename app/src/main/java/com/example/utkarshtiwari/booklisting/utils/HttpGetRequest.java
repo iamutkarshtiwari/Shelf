@@ -53,7 +53,7 @@ public class HttpGetRequest {
                 //Set our result equal to our stringBuilder
                 result = stringBuilder.toString();
             } else {
-                return "";
+                return null;
             }
 
         } catch (Exception e) {

@@ -1,6 +1,10 @@
 package com.example.utkarshtiwari.booklisting.activity;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +24,7 @@ import com.example.utkarshtiwari.booklisting.models.Book;
 import com.example.utkarshtiwari.booklisting.utils.BookLoader;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<ArrayList<Book>> {
 
@@ -27,12 +32,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             "https://www.googleapis.com/books/v1/volumes?q=";
 
     private static final int BOOK_REQUEST_LOADER = 1;
+    private static final String SAVED_LAYOUT_MANAGER = "1";
+    private static final String SEARCH_RESULTS = "booksSearchResults";
 
 
     private FloatingSearchView searchBarView;
     private String mLastQuery = "";
     private RecyclerView recyclerView;
     private RecyclerViewAdapter bookAdapter;
+    private LinearLayoutManager layoutManager;
+    private Parcelable layoutManagerSavedState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +58,25 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 });
 
 
+
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         ArrayList<Book> searchResult = new ArrayList<Book>();
         bookAdapter = new RecyclerViewAdapter(this, searchResult);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+        layoutManager = new LinearLayoutManager(getApplicationContext());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
         recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(bookAdapter);
+
+        if (savedInstanceState != null) {
+            Book[] books = (Book[]) savedInstanceState.getParcelableArray(SEARCH_RESULTS);
+            ArrayList<Book> list = new ArrayList<Book>(books.length);
+            Collections.addAll(list, books);
+            bookAdapter.updateAdapterData(list);
+            setSearchLabelVisibility(false);
+        }
+
         setupSearchBar();
     }
 
@@ -68,9 +87,13 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(Loader<ArrayList<Book>> loader, ArrayList<Book> data) {
+        if (data == null) {
+            Toast.makeText(this, this.getResources().getString(R.string.bad_server), Toast.LENGTH_SHORT).show();
+            return;
+        }
         setSearchLabelVisibility(data.size() == 0);
         if (data.size() == 0) {
-            Toast.makeText(this, this.getResources().getString(R.string.no_books_found), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, this.getResources().getString(R.string.no_books_found), Toast.LENGTH_SHORT).show();
         } else {
             bookAdapter.updateAdapterData(data);
         }
@@ -78,8 +101,16 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoaderReset(Loader<ArrayList<Book>> loader) {
+        Toast.makeText(this, "Screen rotated", Toast.LENGTH_SHORT).show();
         bookAdapter.updateAdapterData(new ArrayList<Book>());
         setSearchLabelVisibility(true);
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
     /**
@@ -101,7 +132,11 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 String requestQuery = GOOGLE_BOOKS_API_BASE_QUERY + query;
                 Bundle args = new Bundle();
                 args.putString("request_url", requestQuery);
-//                getSupportLoaderManager().
+                // Check if internet available
+                if(!isNetworkAvailable()) {
+                    Toast.makeText(MainActivity.this, getResources().getString(R.string.network_issue), Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 getSupportLoaderManager().restartLoader(BOOK_REQUEST_LOADER, args, MainActivity.this).forceLoad();
             }
         });
@@ -144,4 +179,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         }
         finish();
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        ArrayList<Book> searchList = bookAdapter.getAdapterData();
+        Book[] books = new Book[searchList.size()];
+        for (int i = 0; i < books.length; i++) {
+            books[i] = searchList.get(i);
+        }
+        outState.putParcelableArray(SEARCH_RESULTS, (Parcelable[]) books);
+    }
+
+
 }

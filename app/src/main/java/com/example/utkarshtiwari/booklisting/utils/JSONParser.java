@@ -28,6 +28,9 @@ public class JSONParser {
     public ArrayList<Book> getResponseData() {
         ArrayList<Book> itemList = new ArrayList<Book>();
         String responseJSON = HttpGetRequest.getResponseString(this.dataSource);
+        if (responseJSON == null) {
+            return null;
+        }
         Gson gson = new Gson();
 
         // Return empty list if null response
