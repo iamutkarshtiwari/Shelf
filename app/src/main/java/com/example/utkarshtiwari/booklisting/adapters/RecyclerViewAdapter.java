@@ -35,13 +35,17 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
     @Override
     public void onBindViewHolder(BookViewHolder holder, final int position) {
 
-        // Downloads the product image from url
-        Picasso.with(activity)
-                .load(items.get(position).getImageURL())
-                .fit()
-                .error(activity.getResources().getDrawable(R.drawable.image_not_found))
-                .into(holder.bookImage);
-        ;
+        String imageURL = items.get(position).getImageURL();
+        if (imageURL == null || imageURL.length() == 0) {
+            holder.bookImage.setImageResource(R.drawable.image_not_found);
+        } else {
+            Picasso.with(activity)
+                    .load(items.get(position).getImageURL())
+                    .fit()
+                    .error(activity.getResources().getDrawable(R.drawable.image_not_found))
+                    .into(holder.bookImage);
+        }
+        
         holder.bookName.setText(items.get(position).getName());
         String authList = "";
         if (items.get(position).getAuthors().size() > 0) {
