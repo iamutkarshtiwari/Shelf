@@ -46,6 +46,16 @@ public class Book implements Parcelable {
     }
 
     private String name;
+
+    public String getInfoLink() {
+        return infoLink;
+    }
+
+    public void setInfoLink(String infoLink) {
+        this.infoLink = infoLink;
+    }
+
+    private String infoLink;
     private ArrayList<String> authors;
     private String language;
     private String currency;
@@ -69,13 +79,14 @@ public class Book implements Parcelable {
         this.currency = currency;
     }
 
-    public Book(String name, ArrayList<String> authors, String language, double price, String currency, String imageURL) {
+    public Book(String name, ArrayList<String> authors, String language, double price, String currency, String imageURL, String infoLink) {
         this.name = name;
         this.authors = authors;
         this.language = language;
         this.price = price;
         this.currency = currency;
         this.imageURL = imageURL;
+        this.infoLink = infoLink;
     }
 
     protected Book(Parcel in) {

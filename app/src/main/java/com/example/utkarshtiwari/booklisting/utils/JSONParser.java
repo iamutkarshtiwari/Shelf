@@ -63,6 +63,7 @@ public class JSONParser {
 
                 }
                 String language = bookObject.getJSONObject("volumeInfo").getString("language");
+                String infoLink = bookObject.getJSONObject("volumeInfo").getString("infoLink");
                 if (bookObject.has("saleInfo") && bookObject.getJSONObject("saleInfo").has("listPrice")) {
                     price = bookObject.getJSONObject("saleInfo").getJSONObject("listPrice").getDouble("amount");
                     currency = bookObject.getJSONObject("saleInfo").getJSONObject("listPrice").getString("currencyCode");
@@ -70,7 +71,7 @@ public class JSONParser {
                 if (bookObject.getJSONObject("volumeInfo").has("imageLinks")) {
                     photoURL = bookObject.getJSONObject("volumeInfo").getJSONObject("imageLinks").getString("smallThumbnail");
                 }
-                Book book = new Book(name, authors, language, price, currency, photoURL);
+                Book book = new Book(name, authors, language, price, currency, photoURL, infoLink);
                 itemList.add(book);
             }
         } catch (Exception e) {

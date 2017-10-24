@@ -18,12 +18,19 @@ import java.util.ArrayList;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
 
-    ArrayList<Book> items;
-    Activity activity;
+    private ArrayList<Book> items;
+    private Activity activity;
+    private OnItemClickListener mListener;
 
-    public RecyclerViewAdapter(Activity activity, ArrayList<Book> items) {
+    public static interface OnItemClickListener {
+        void onItemClick(Book book);
+    }
+
+
+    public RecyclerViewAdapter(Activity activity, ArrayList<Book> items, OnItemClickListener listener) {
         this.activity = activity;
         this.items = items;
+        this.mListener = listener;
     }
 
     @Override
@@ -45,7 +52,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
                     .error(activity.getResources().getDrawable(R.drawable.image_not_found))
                     .into(holder.bookImage);
         }
-        
+
         holder.bookName.setText(items.get(position).getName());
         String authList = "";
         if (items.get(position).getAuthors().size() > 0) {
@@ -64,6 +71,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<BookViewHolder> {
             double price = items.get(position).getPrice();
             holder.bookPrice.setText(this.activity.getResources().getString(R.string.price, currency, price));
         }
+
+        holder.bind(items.get(position), mListener);
+
     }
 
     @Override

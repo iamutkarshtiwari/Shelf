@@ -1,8 +1,10 @@
 package com.example.utkarshtiwari.booklisting.activity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.app.LoaderManager;
@@ -58,10 +60,17 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
                 });
 
 
-
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         ArrayList<Book> searchResult = new ArrayList<Book>();
-        bookAdapter = new RecyclerViewAdapter(this, searchResult);
+        bookAdapter = new RecyclerViewAdapter(this, searchResult, new RecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Book book) {
+                String url = book.getInfoLink();
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse(url));
+                startActivity(i);
+            }
+        });
         layoutManager = new LinearLayoutManager(getApplicationContext());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
